@@ -53,9 +53,9 @@ void loop() {
   runMotor(M_ROTATE, 200, BACK);
   delay(1000);   
   
-  runMotor(M_SLIDE, 2000, FWD);
+  runMotor(M_SLIDE, 1000, FWD);
   delay(100); 
-  runMotor(M_SLIDE, 2000, FWD);
+  runMotor(M_SLIDE, 1000, FWD);
   delay(100); 
 
 
