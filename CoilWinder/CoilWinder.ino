@@ -1,62 +1,101 @@
 
-const int stepX = 2;
-const int dirX  = 5;
-const int stepY = 3;
-const int dirY  = 6;
-const int enPin = 8;
-
+#include <stdint.h>
 
 #define M_ROTATE    1
 #define M_SLIDE     0
 #define FWD         LOW
 #define BACK        HIGH
 
-void runMotor(int motorId, int stepCount, int direction){
-  int motor;
+const int stepSlidePin = 2;
+const int dirSlidePin  = 5;
+const int stepRotatePin = 3;
+const int dirRotatePin  = 6;
+const int enPin = 8;
 
-  if(motorId == 0){
-    motor = stepX;
-    digitalWrite(dirX, direction);
-  }else{
-    motor = stepY;
-    digitalWrite(dirY, direction);
-  }
+const uint32_t maxSliderSteps = 22000;      // Maximum slider steps to sweep maximum coil length
+const uint32_t maxCoilLength = 100000;      // Maximum coil length in um
+const int rotaryMotorStepsPerTurn = 200;  // Number of steps to make for one coil turn
 
-  digitalWrite(enPin,LOW);
-  for(int x = 0; x < stepCount; x++) {
-    digitalWrite(motor,HIGH);
-    delayMicroseconds(1000);
-    digitalWrite(motor,LOW);
-    delayMicroseconds(1000);
-  }
-  digitalWrite(enPin,HIGH);
-  
+uint32_t sliderStepsPerCoilLength = 100000; // Number of steps the slider should make to sweep the entire coil length.
+float rotationSlideRatio = 1;  
+uint32_t currentSLiderSteps = 0;
+uint32_t currentRotarySteps = 0;
+uint32_t targetSliderSteps = 0;
+uint32_t targetRotarySteps = 0;
+bool pauseFlag = false;
+
+// The following variables will be adjusted via LCD menu
+uint32_t wireDiameter = 100;                // Wire diameter in um
+uint32_t coilLength = 50000;                // Coil length in um
+uint32_t wireTurnCount = 1000;              // Number of wire turns to wind on the coil
+
+/* Calculates number of slider steps per wire turn based on preset wire diameter and number of slider steps to sweep the coil length.
+ * This should be run every time the parameters are changed.
+ */
+void calibrateMotors(){
+    uint32_t wireTurnsPerCoilLength = coilLength/wireDiameter;
+    uint32_t rotaryMotorStepsPerCoilLength = wireTurnsPerCoilLength * rotaryMotorStepsPerTurn;
+    sliderStepsPerCoilLength = (maxSliderSteps * coilLength) / maxCoilLength;
+    rotationSlideRatio = (float)rotaryMotorStepsPerCoilLength / (float)sliderStepsPerCoilLength;
+
+    targetRotarySteps = wireTurnCount * rotaryMotorStepsPerTurn;
 }
 
-void setup() {
-  pinMode(stepX,OUTPUT);
-  pinMode(dirX,OUTPUT);
+void updateMotors(){
+  if(pauseFlag){
+    digitalWrite(enPin,HIGH);   // Disable steppers
+  }else{
+    digitalWrite(enPin,LOW);    // Enable motors
 
-  pinMode(stepY,OUTPUT);
-  pinMode(dirY,OUTPUT);
+    // update rotation
+    digitalWrite(dirRotatePin, FWD);
+    
+    digitalWrite(stepRotatePin,HIGH);
+    delayMicroseconds(1000);
+    digitalWrite(stepRotatePin,LOW);
+    delayMicroseconds(1000);
+
+    currentRotarySteps++;
+
+    // Update slider
+    targetSliderSteps = (float)currentRotarySteps / rotationSlideRatio;
+    
+    while(currentSLiderSteps < targetSliderSteps){
+      uint32_t relativeSliderPosition = currentSLiderSteps % (sliderStepsPerCoilLength * 2);
+      bool slideForward = relativeSliderPosition < sliderStepsPerCoilLength;
+
+      if(slideForward){
+        digitalWrite(dirSlidePin, FWD);
+      }else{
+        digitalWrite(dirSlidePin, BACK);
+      }
+
+      digitalWrite(stepSlidePin,HIGH);
+      delayMicroseconds(1000);
+      digitalWrite(stepSlidePin,LOW);
+      delayMicroseconds(1000);
+
+      currentSLiderSteps++;
+    }
+  }
+}
+
+
+void setup() {
+  pinMode(stepSlidePin,OUTPUT);
+  pinMode(dirSlidePin,OUTPUT);
+
+  pinMode(stepRotatePin,OUTPUT);
+  pinMode(dirRotatePin,OUTPUT);
 
   pinMode(enPin,OUTPUT);
   digitalWrite(enPin,HIGH);
+
+  Serial.begin(115200); // opens serial port, sets data rate to 115200 bps
+  Serial.println("\n\nStarting coil winder\n");
+  calibrateMotors();
 }
 
 void loop() {
-
-  
- 
-  runMotor(M_ROTATE, 200, FWD);
-  delay(1000); 
-  runMotor(M_ROTATE, 200, BACK);
-  delay(1000);   
-  
-  runMotor(M_SLIDE, 1000, FWD);
-  delay(100); 
-  runMotor(M_SLIDE, 1000, FWD);
-  delay(100); 
-
-
+  updateMotors();  
 }
