@@ -23,6 +23,7 @@ uint32_t currentRotarySteps = 0;
 uint32_t targetSliderSteps = 0;
 uint32_t targetRotarySteps = 0;
 bool pauseFlag = false;
+int slideDirection = BACK;
 
 // The following variables will be adjusted via LCD menu
 uint32_t wireDiameter = 500;                // Wire diameter in um
@@ -40,6 +41,12 @@ void calibrateMotors(){
 
     targetRotarySteps = wireTurnCount * rotaryMotorStepsPerTurn;
 
+    Serial.print("wireTurnsPerCoilLength:");
+    Serial.println(wireTurnsPerCoilLength);
+    Serial.print("rotationSlideRatio:");
+    Serial.println(rotationSlideRatio);
+
+    
     Serial.print("sliderStepsPerCoilLength:");
     Serial.println(sliderStepsPerCoilLength);
 }
@@ -71,13 +78,18 @@ void updateMotors(){
 //      Serial.println(currentSLiderSteps);
 
       if(slideForward){
-        digitalWrite(dirSlidePin, FWD);
-        Serial.println("FWD");
-
+        if(slideDirection == BACK){
+          Serial.println("FWD");
+        }
+        slideDirection = FWD; 
       }else{
-        digitalWrite(dirSlidePin, BACK);
-        Serial.println("BACK");
+        if(slideDirection == FWD){
+          Serial.println("BACK");
+        }
+        slideDirection = BACK;        
       }
+
+      digitalWrite(dirSlidePin, slideDirection);
 
       digitalWrite(stepSlidePin,HIGH);
       delayMicroseconds(1000);
@@ -85,7 +97,6 @@ void updateMotors(){
       delayMicroseconds(1000);
 
       currentSLiderSteps++;
-
       
     }
   }
