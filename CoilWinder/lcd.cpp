@@ -1,14 +1,8 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
+#include "config.h"
 
-const int pin_RS = 8; 
-const int pin_EN = 9; 
-const int pin_d4 = 4; 
-const int pin_d5 = 5; 
-const int pin_d6 = 6; 
-const int pin_d7 = 7; 
-const int pin_BL = 10; 
-LiquidCrystal lcd( pin_RS,  pin_EN,  pin_d4,  pin_d5,  pin_d6,  pin_d7);
+LiquidCrystal lcd( PIN_LCD_RS,  PIN_LCD_EN,  PIN_LCD_D4,  PIN_LCD_D5,  PIN_LCD_D6,  PIN_LCD_D7);
 
 void LCD_setup() {
  lcd.begin(16, 2);
