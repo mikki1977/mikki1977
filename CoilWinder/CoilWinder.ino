@@ -67,8 +67,8 @@ void updateMotors(){
       uint32_t relativeSliderPosition = currentSLiderSteps % (sliderStepsPerCoilLength * 2);
       bool slideForward = relativeSliderPosition < sliderStepsPerCoilLength;
 
-      Serial.print("currentSLiderSteps:");
-      Serial.println(currentSLiderSteps);
+//      Serial.print("currentSLiderSteps:");
+//      Serial.println(currentSLiderSteps);
 
       if(slideForward){
         digitalWrite(dirSlidePin, FWD);
