@@ -25,8 +25,8 @@ uint32_t targetRotarySteps = 0;
 bool pauseFlag = false;
 
 // The following variables will be adjusted via LCD menu
-uint32_t wireDiameter = 100;                // Wire diameter in um
-uint32_t coilLength = 50000;                // Coil length in um
+uint32_t wireDiameter = 500;                // Wire diameter in um
+uint32_t coilLength = 5000;                // Coil length in um
 uint32_t wireTurnCount = 1000;              // Number of wire turns to wind on the coil
 
 /* Calculates number of slider steps per wire turn based on preset wire diameter and number of slider steps to sweep the coil length.
@@ -39,6 +39,9 @@ void calibrateMotors(){
     rotationSlideRatio = (float)rotaryMotorStepsPerCoilLength / (float)sliderStepsPerCoilLength;
 
     targetRotarySteps = wireTurnCount * rotaryMotorStepsPerTurn;
+
+    Serial.print("sliderStepsPerCoilLength:");
+    Serial.println(sliderStepsPerCoilLength);
 }
 
 void updateMotors(){
@@ -64,10 +67,16 @@ void updateMotors(){
       uint32_t relativeSliderPosition = currentSLiderSteps % (sliderStepsPerCoilLength * 2);
       bool slideForward = relativeSliderPosition < sliderStepsPerCoilLength;
 
+      Serial.print("currentSLiderSteps:");
+      Serial.println(currentSLiderSteps);
+
       if(slideForward){
         digitalWrite(dirSlidePin, FWD);
+        Serial.println("FWD");
+
       }else{
         digitalWrite(dirSlidePin, BACK);
+        Serial.println("BACK");
       }
 
       digitalWrite(stepSlidePin,HIGH);
@@ -76,6 +85,8 @@ void updateMotors(){
       delayMicroseconds(1000);
 
       currentSLiderSteps++;
+
+      
     }
   }
 }
