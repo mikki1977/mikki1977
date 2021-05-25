@@ -12,8 +12,8 @@ const int stepRotatePin = 3;
 const int dirRotatePin  = 6;
 const int enPin = 8;
 
-const uint32_t maxSliderSteps = 22000;      // Maximum slider steps to sweep maximum coil length
-const uint32_t maxCoilLength = 100000;      // Maximum coil length in um
+const uint32_t maxSliderSteps = 3600;      // Maximum slider steps to sweep maximum coil length
+const uint32_t maxCoilLength = 88000;      // Maximum coil length in um
 const int rotaryMotorStepsPerTurn = 200;  // Number of steps to make for one coil turn
 
 uint32_t sliderStepsPerCoilLength = 100000; // Number of steps the slider should make to sweep the entire coil length.
@@ -27,7 +27,7 @@ int slideDirection = BACK;
 
 // The following variables will be adjusted via LCD menu
 uint32_t wireDiameter = 500;                // Wire diameter in um
-uint32_t coilLength = 5000;                // Coil length in um
+uint32_t coilLength = 30000;                // Coil length in um
 uint32_t wireTurnCount = 1000;              // Number of wire turns to wind on the coil
 
 /* Calculates number of slider steps per wire turn based on preset wire diameter and number of slider steps to sweep the coil length.
@@ -40,12 +40,6 @@ void calibrateMotors(){
     rotationSlideRatio = (float)rotaryMotorStepsPerCoilLength / (float)sliderStepsPerCoilLength;
 
     targetRotarySteps = wireTurnCount * rotaryMotorStepsPerTurn;
-
-    Serial.print("wireTurnsPerCoilLength:");
-    Serial.println(wireTurnsPerCoilLength);
-    Serial.print("rotationSlideRatio:");
-    Serial.println(rotationSlideRatio);
-
     
     Serial.print("sliderStepsPerCoilLength:");
     Serial.println(sliderStepsPerCoilLength);
@@ -78,14 +72,14 @@ void updateMotors(){
 //      Serial.println(currentSLiderSteps);
 
       if(slideForward){
-        if(slideDirection == BACK){
-          Serial.println("FWD");
-        }
+//        if(slideDirection == BACK){
+//          Serial.println("FWD");
+//        }
         slideDirection = FWD; 
       }else{
-        if(slideDirection == FWD){
-          Serial.println("BACK");
-        }
+//        if(slideDirection == FWD){
+//          Serial.println("BACK");
+//        }
         slideDirection = BACK;        
       }
 
