@@ -1,5 +1,5 @@
-
 #include <stdint.h>
+#include "lcd.h"
 
 #define M_ROTATE    1
 #define M_SLIDE     0
@@ -110,8 +110,11 @@ void setup() {
   Serial.begin(115200); // opens serial port, sets data rate to 115200 bps
   Serial.println("\n\nStarting coil winder\n");
   calibrateMotors();
+
+  LCD_setup();
 }
 
 void loop() {
-  updateMotors();  
+  updateMotors(); 
+  LCD_process();
 }
